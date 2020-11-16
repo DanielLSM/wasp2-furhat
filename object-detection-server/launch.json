@@ -1,7 +1,9 @@
 {
     "Furhat_IP": "130.229.143.90",
     "Dev_IP": "127.0.0.1",
+    "Audio_IP": "130.229.143.90",
     "detection_exposure_port": "9999",
+    "detection_audio": "9998",
     "detection_period": 10,
     "detection_confidence_threshold": 0.5
 }

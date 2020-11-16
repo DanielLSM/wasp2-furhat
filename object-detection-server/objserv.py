@@ -185,6 +185,7 @@ while x:
 
         currset = getObjectSet(objectList(res))
         objdiff = compareSets(prevset, currset)
+
         if len(objdiff):
             msg = ' '.join(objdiff)
             outsocket.send_string(msg)
