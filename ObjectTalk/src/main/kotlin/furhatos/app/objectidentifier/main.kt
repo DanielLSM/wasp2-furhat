@@ -15,8 +15,12 @@ import zmq.ZMQ.ZMQ_SUB
 
 val logger = CommonUtils.getRootLogger()
 val objserv = "tcp://127.0.0.1:9999" //The TCP socket of the object server
+val languageserv = "tcp://127.0.0.1:9998" //The TCP socket of the object server
+
 
 val subSocket: ZMQ.Socket = getConnectedSocket(ZMQ_SUB, objserv) //Makes a socket of the object server
+val subSocket1: ZMQ.Socket = getConnectedSocket(ZMQ_SUB, languageserv) //Makes a socket of the object server
+
 val enter = "enter_" //Objects that enter the view start with this string
 val leave = "leave_" //Objects that leave the view start with this string
 
@@ -45,14 +49,12 @@ fun startListenThread() {
     GlobalScope.launch { // launch a new coroutine in background and continue
         logger.warn("LAUNCHING COROUTINE")
         subSocket.subscribe("")
+        subSocket1.subscribe("")
         while (true) {
             val message = subSocket.recvStr()
+            val language = subSocket1.recvStr()
             logger.warn("got: $message")
-            if(message.contains(enter)) {
-                EventSystem.send(EnterEvent(getObjects(message, enter)))
-            } else if(message.contains(leave)) {
-                EventSystem.send(LeaveEvent(getObjects(message, leave)))
-            }
+            EventSystem.send(EnterEvent(message,language))
         }
     }
 }

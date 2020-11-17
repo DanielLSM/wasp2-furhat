@@ -4,10 +4,12 @@ import furhatos.event.Event
 import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.state
 
+import furhatos.util.Language
+
 /**
  * Events used for communication between the thread and the flow.
  */
-class EnterEvent(val objects: List<String>): Event()
+class EnterEvent(val message: String, val language: String): Event()
 class LeaveEvent(val objects: List<String>): Event()
 
 /**
@@ -21,11 +23,13 @@ val Main = state {
     }
 
     onEvent<EnterEvent> {// Objects that enter the view
-        if (it.objects.size > 1) {
-            furhat.say("You showed me multiple objects. ${it.objects.joinToString(" and ")}")
-        } else {
-            furhat.say("Oh cool, that is a ${it.objects[0]}")
+        if (it.language == "english"){
+            furhat.setVoice(language=Language.ENGLISH_US)
         }
+        if (it.language == "french"){
+            furhat.setVoice(language=Language.FRENCH)
+        }
+        furhat.say(it.message)
     }
 
     onEvent<LeaveEvent> {
