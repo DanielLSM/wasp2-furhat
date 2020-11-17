@@ -19,16 +19,21 @@ val Main = state {
 
     onEntry {
         furhat.cameraFeed.enable()
+        furhat.setVoice(language=Language.ENGLISH_US)
         furhat.say("Welcome to this camera feed demonstration, please place an item in front of me. Maybe I can detect what it is.")
     }
 
     onEvent<EnterEvent> {// Objects that enter the view
-        if (it.language == "english"){
+        if (it.language == "en"){
             furhat.setVoice(language=Language.ENGLISH_US)
         }
-        if (it.language == "french"){
+        if (it.language == "fr"){
             furhat.setVoice(language=Language.FRENCH)
         }
+        if (it.language == "sv"){
+            furhat.setVoice(language=Language.SWEDISH)
+        }
+
         furhat.say(it.message)
     }
 

@@ -85,15 +85,23 @@ class ObjectProcessor:
                 objdiff = self.compareSets(prevset, currset)
 
                 if ((len(objdiff) > 1)
-                        and ((iterations % self.detection_period * 5) == 0)):
+                        and ((iterations % self.detection_period * 500) == 0)):
                     print('hello')
-                    msg = self.translator.create_furhat_msg(
+                    msg_enter, msg_leave = self.translator.create_furhat_msg(
                         objdiff, dest=self.language['language'])
-                    if msg != '...':
-                        self.outsocket.send_string(msg.text)
-                        self.lang_socket.send_string(self.language['language'])
-                    print(msg)
+                    if msg_enter != '...':
+                        self.outsocket.send_string(msg_enter.text)
+                        self.lang_socket.send_string(msg_enter.dest)
+                        print(msg_enter.text)
+                        print(msg_enter.dest)
 
+                    if msg_leave != '...':
+                        self.outsocket.send_string(msg_leave.text)
+                        self.lang_socket.send_string(msg_leave.dest)
+                        print(msg_leave.text)
+                        print(msg_leave.dest)
+
+                        # print(self.language['language'])
                     # msg = ' '.join(objdiff)
 
                 prevset = currset

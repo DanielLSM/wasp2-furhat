@@ -20,7 +20,7 @@ LANGUAGES_DICT = {
 TRANSLATOR_DICT = {
     "en": "en",
     "fr": "fr",
-    "sw": "swe",
+    "sw": "sw",
     "it": "it",
     "sp": "es",
     "po": "pt"
@@ -38,41 +38,57 @@ class TranslatorProcessor:
             translation = "..."
         return translation
 
-    def process_objects(self, objects, transition):
-        process_objects = objects
+    def process_objects(self, objects):
+        enter_objs = []
+        leave_obs = []
         for _ in range(len(objects)):
+            transition = 'enter' if objects[_][0:2] == 'en' else 'leave'
             if transition == 'enter':
-                process_objects[_] = objects[_].replace("enter_", "")
+                obj = objects[_].replace("enter_", "")
+                enter_objs.append(obj)
             else:
-                process_objects[_] = objects[_].replace("leave_", "")
-        assert len(process_objects) == len(objects)
-        return process_objects
+                obj = objects[_].replace("leave_", "")
+                leave_obs.append(obj)
+        return enter_objs, leave_obs
 
     def create_furhat_msg(self, translate_objects, dest='en'):
         transition = 'enter' if translate_objects[0][0:2] == 'en' else 'leave'
 
-        objs = self.process_objects(translate_objects, transition)
-        print(objs)
+        enter_objs, leave_objs = self.process_objects(translate_objects)
 
-        if transition == 'enter':
-            if len(objs) > 1:
-                msg = "You showed me multiple objects. "
-                for _ in objs:
-                    msg = msg + " and " + str(_)
-            else:
-                msg = "Oh nice, that is a {}".format(objs)
+        if len(enter_objs):
+            enter_msg = self.create_enter_message(enter_objs)
+            if dest != 'en':
+                enter_translated_msg = self.translate_sentence(enter_msg, dest)
         else:
-            if len(objs) > 1:
-                msg = "You removed multiple objects. "
-                for _ in objs:
-                    msg = msg + " and " + str(_)
-            else:
-                msg = "No, don't remove that, I love the {}".format(objs)
+            enter_translated_msg = '...'
 
-        if dest != 'en':
-            translated_msg = self.translate_sentence(msg, dest)
+        if len(leave_objs):
+            leave_msg = self.create_leave_message(leave_objs)
+            if dest != 'en':
+                leave_translated_msg = self.translate_sentence(leave_msg, dest)
+        else:
+            leave_translated_msg = '...'
 
-        return translated_msg
+        return enter_translated_msg, leave_translated_msg
+
+    def create_enter_message(self, objs_enter):
+        if len(objs_enter) > 1:
+            msg = "You showed me multiple objects. "
+            for _ in objs_enter:
+                msg = msg + " and " + str(_)
+        else:
+            msg = "Oh nice, that is a {}".format(objs_enter[0])
+        return msg
+
+    def create_leave_message(self, objs_leave):
+        if len(objs_leave) > 1:
+            msg = "You removed multiple objects. "
+            for _ in objs_leave:
+                msg = msg + " and " + str(_)
+        else:
+            msg = "No, don't remove that, I love the {}".format(objs_leave[0])
+        return msg
 
 
 class SpeechProcessor:
@@ -174,8 +190,15 @@ if __name__ == "__main__":
     tr = TranslatorProcessor()
     # message = tr.translate_sentence("Hola Mundo")
 
-    objects = ['enter_tvmonitor', 'enter_bottle', 'enter_cup']
+    objects = [
+        'enter_tvmonitor', 'enter_bottle', 'leave_cup', 'leave_wine glass'
+    ]
+    import googletrans
+    print(googletrans.LANGCODES)
 
-    message = tr.create_furhat_msg(objects, dest="es")
-    if message != '...':
-        print(message.text)
+    message_enter, message_leave = tr.create_furhat_msg(objects, dest="sw")
+    if message_enter != '...':
+        print(message_enter.text)
+
+    if message_leave != '...':
+        print(message_leave.text)
